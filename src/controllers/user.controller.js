@@ -19,6 +19,7 @@ const registerUser = asyncHandler( async (req,res) => {
 
 
   // get user details from frontend
+
  const {fullName,email,username,password} = req.body
  console.log("email:", email);
 
@@ -26,12 +27,17 @@ const registerUser = asyncHandler( async (req,res) => {
 //   throw new apiError(400, "fullname is required")
 //  }
 
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// validation - not empty
 if (
   [fullName, email, username, password].some((field)=>
   field?.trim() === "")
 ) {
   throw new apiError(400, "All field are required")
 }
+
+// check if user already exist- username, email
 
   const existedUser = User.findOne({
     $or: [{ username },{ email }]
@@ -41,6 +47,8 @@ if (
     throw new apiError(409, "User with email or username already exists")
   }
 
+  // check for image, check for avatar
+
   const avatarLocalPath = req.files?.avatar[0]?.path
   // console.log(req.files)
   const coverImageLocalPath = req.files?.coverImage[0]?.path
@@ -49,14 +57,17 @@ if (
     throw new apiError(400, "Avatar file is required")
   }
 
-  // upload file to cloudinary
+  // upload them to cloudinary, avatar
+
  const avatar = await uploadOnCloudinary(avatarLocalPath)
   const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
   if(!avatar){
     throw new apiError(400, "Avatar file is required")
   }
+
   // create user object - create entry in db
+
   const user = await username.create({
     fullName,
     avatar: avatar.url,
@@ -73,12 +84,13 @@ if (
   )
 
   // check for user creation
+  
   if(!createUser){
     throw new apiError(500, "something went wrong while registering the user" )
   }
 
   // return res
-  
+
   return res.status(201).json(
       new apiResponse(200,createUser, "User registered successfully")
   )
