@@ -1,9 +1,8 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
-import { apiError } from "../utils/apiError.js"
+import { ApiError } from "../utils/ApiError.js"
 import { User } from "../models/user.models.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
-import { apiResponse } from "../utils/apiResponse.js"
-
+import { ApiResponse } from "../utils/ApiResponse.js"
 
 
 const registerUser = asyncHandler( async (req,res) => {
@@ -34,7 +33,7 @@ if (
   [fullName, email, username, password].some((field)=>
   field?.trim() === "")
 ) {
-  throw new apiError(400, "All field are required")
+  throw new ApiError(400, "All field are required")
 }
 
 // check if user already exist- username, email
@@ -44,7 +43,7 @@ if (
   })
 
   if(existedUser){
-    throw new apiError(409, "User with email or username already exists")
+    throw new ApiError(409, "User with email or username already exists")
   }
 
   // check for image, check for avatar
@@ -54,7 +53,7 @@ if (
   const coverImageLocalPath = req.files?.coverImage[0]?.path
 
   if(!avatarLocalPath){
-    throw new apiError(400, "Avatar file is required")
+    throw new ApiError(400, "Avatar file is required")
   }
 
   // upload them to cloudinary, avatar
@@ -63,7 +62,7 @@ if (
   const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
   if(!avatar){
-    throw new apiError(400, "Avatar file is required")
+    throw new ApiError(400, "Avatar file is required")
   }
 
   // create user object - create entry in db
@@ -84,15 +83,15 @@ if (
   )
 
   // check for user creation
-  
+
   if(!createUser){
-    throw new apiError(500, "something went wrong while registering the user" )
+    throw new ApiError(500, "something went wrong while registering the user" )
   }
 
   // return res
 
   return res.status(201).json(
-      new apiResponse(200,createUser, "User registered successfully")
+      new ApiResponse(200,createUser, "User registered successfully")
   )
 })
 
