@@ -20,9 +20,10 @@ import { loadEnvFile } from "process";
       // file has been uploaded successfully
       console.log("file is uploadid on cloudinary", response.url);
       return response;
+
     } catch (error) {
       fs.unlinkSync(localFilePath) // remove the locally saved temporary file as the upload operation fot failed
-
+      return null;
     }
   }
 
